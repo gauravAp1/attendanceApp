@@ -26,6 +26,13 @@ class ImageVectorUseCase(
         val spoofResult: FaceSpoofDetector.FaceSpoofResult? = null,
     )
 
+    suspend fun addImageBitmap(personId: Long, personName: String, bitmap: Bitmap): Result<Unit> {
+        return runCatching {
+            val embedding = faceNet.getFaceEmbedding(bitmap)
+            imagesVectorDB.addEmbedding(personId, personName, embedding)
+        }
+    }
+
     // Add the person's image to the database
     suspend fun addImage(
         personID: Long,

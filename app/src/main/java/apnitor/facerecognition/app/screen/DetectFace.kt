@@ -73,28 +73,28 @@ fun DetectScreen(onOpenFaceListClick: (() -> Unit)) {
                             style = MaterialTheme.typography.headlineSmall,
                         )
                     },
-//                    actions = {
-//                        IconButton(onClick = onOpenFaceListClick) {
-//                            Icon(
-//                                imageVector = Icons.Default.Face,
-//                                contentDescription = "Open Face List",
-//                            )
-//                        }
-//                        IconButton(
-//                            onClick = {
-//                                if (cameraFacing.intValue == CameraSelector.LENS_FACING_BACK) {
-//                                    cameraFacing.intValue = CameraSelector.LENS_FACING_FRONT
-//                                } else {
-//                                    cameraFacing.intValue = CameraSelector.LENS_FACING_BACK
-//                                }
-//                            },
-//                        ) {
-//                            Icon(
-//                                imageVector = Icons.Default.Cameraswitch,
-//                                contentDescription = "Switch Camera",
-//                            )
-//                        }
-//                    },
+                    actions = {
+                        IconButton(onClick = onOpenFaceListClick) {
+                            Icon(
+                                imageVector = Icons.Default.Face,
+                                contentDescription = "Open Face List",
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                if (cameraFacing.intValue == CameraSelector.LENS_FACING_BACK) {
+                                    cameraFacing.intValue = CameraSelector.LENS_FACING_FRONT
+                                } else {
+                                    cameraFacing.intValue = CameraSelector.LENS_FACING_BACK
+                                }
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Cameraswitch,
+                                contentDescription = "Switch Camera",
+                            )
+                        }
+                    },
                 )
             },
         ) { innerPadding ->

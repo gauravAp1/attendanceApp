@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
-    id("com.google.gms.google-services")
+//    id("com.google.gms.google-services")
     id("com.google.dagger.hilt.android")
 }
 
@@ -64,6 +64,9 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
+
+    implementation("com.google.mlkit:face-detection:16.1.6")
+
 
     // Mediapipe Face Detection
     implementation(libs.tasks.vision)

@@ -15,6 +15,16 @@ class ImagesVectorDB {
         imagesBox.put(record)
     }
 
+    fun addEmbedding(personID: Long, personName: String, embedding: FloatArray) {
+        addFaceImageRecord(
+            FaceImageRecord(
+                personID = personID,
+                personName = personName,
+                faceEmbedding = embedding
+            )
+        )
+    }
+
     fun getNearestEmbeddingPersonName(
         embedding: FloatArray,
         flatSearch: Boolean,
