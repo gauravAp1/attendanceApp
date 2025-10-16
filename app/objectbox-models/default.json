@@ -1,0 +1,80 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:2560830061738055994",
+      "lastPropertyId": "4:1839824322011479924",
+      "name": "FaceImageRecord",
+      "properties": [
+        {
+          "id": "1:6321619909352662173",
+          "name": "recordID",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3383660848744503461",
+          "name": "personID",
+          "indexId": "1:6655848871245405881",
+          "type": 6,
+          "flags": 8
+        },
+        {
+          "id": "3:301668940035037362",
+          "name": "personName",
+          "type": 9
+        },
+        {
+          "id": "4:1839824322011479924",
+          "name": "faceEmbedding",
+          "indexId": "2:4659672834596369984",
+          "type": 28,
+          "flags": 8
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:8410151204825114523",
+      "lastPropertyId": "4:7415170402878725972",
+      "name": "PersonRecord",
+      "properties": [
+        {
+          "id": "1:5624861141157383531",
+          "name": "personID",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:9206879612908757707",
+          "name": "personName",
+          "type": 9
+        },
+        {
+          "id": "3:2522950909969441156",
+          "name": "numImages",
+          "type": 6
+        },
+        {
+          "id": "4:7415170402878725972",
+          "name": "addTime",
+          "type": 6
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "2:8410151204825114523",
+  "lastIndexId": "2:4659672834596369984",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}
