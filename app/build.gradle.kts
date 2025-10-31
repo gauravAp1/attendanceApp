@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
-//    id("com.google.gms.google-services")
+    id("com.google.gms.google-services")
     id("com.google.dagger.hilt.android")
 }
 
@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
     implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-database-ktx")
 
     // CameraX
     implementation(libs.androidx.camera.camera2)

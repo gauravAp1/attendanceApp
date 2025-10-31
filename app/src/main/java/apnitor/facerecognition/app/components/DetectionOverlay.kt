@@ -1,6 +1,5 @@
 package apnitor.facerecognition.app.components
 
-
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
@@ -20,7 +19,6 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.toRectF
 import androidx.core.view.doOnLayout
 import androidx.lifecycle.LifecycleOwner
 import apnitor.facerecognition.app.viewmodel.DetectScreenViewModel
@@ -37,10 +35,7 @@ class FaceDetectionOverlay(
     private val context: Context,
     private val viewModel: DetectScreenViewModel,
 ) : FrameLayout(context) {
-    // Setting `flatSearch` to `true` enables precise calculation
-    // of cosine similarity.
-    // This is slower than ObjectBox's vector search, which approximates
-    // nearest neighbor search
+
     private val flatSearch: Boolean = false
     private var overlayWidth: Int = 0
     private var overlayHeight: Int = 0
@@ -117,13 +112,19 @@ class FaceDetectionOverlay(
 
     private val analyzer =
         ImageAnalysis.Analyzer { image ->
+            // ✅ If a dialog is showing, pause detection immediately.
+            if (viewModel.dialogMessage.value != null) {
+                // Make sure we fully reset analyzer state for next frame
+                isProcessing = false
+                image.close()
+                return@Analyzer
+            }
             if (isProcessing) {
                 image.close()
                 return@Analyzer
             }
             isProcessing = true
 
-            // Transform android.net.Image to Bitmap
             frameBitmap =
                 Bitmap.createBitmap(
                     image.image!!.width,
@@ -132,11 +133,10 @@ class FaceDetectionOverlay(
                 )
             frameBitmap.copyPixelsFromBuffer(image.planes[0].buffer)
 
-            // Configure frameHeight and frameWidth for output2overlay transformation matrix
-            // and apply it to `frameBitmap`
             if (!isImageTransformedInitialized) {
-                imageTransform = Matrix()
-                imageTransform.apply { postRotate(image.imageInfo.rotationDegrees.toFloat()) }
+                imageTransform = Matrix().apply {
+                    postRotate(image.imageInfo.rotationDegrees.toFloat())
+                }
                 isImageTransformedInitialized = true
             }
             frameBitmap =
@@ -151,15 +151,12 @@ class FaceDetectionOverlay(
                 )
 
             if (!isBoundingBoxTransformedInitialized) {
-                boundingBoxTransform = Matrix()
-                boundingBoxTransform.apply {
+                boundingBoxTransform = Matrix().apply {
                     setScale(
                         overlayWidth / frameBitmap.width.toFloat(),
                         overlayHeight / frameBitmap.height.toFloat(),
                     )
                     if (cameraFacing == CameraSelector.LENS_FACING_FRONT) {
-                        // Mirror the bounding box coordinates
-                        // for front-facing camera
                         postScale(
                             -1f,
                             1f,
@@ -170,6 +167,7 @@ class FaceDetectionOverlay(
                 }
                 isBoundingBoxTransformedInitialized = true
             }
+
             CoroutineScope(Dispatchers.Default).launch {
                 val predictions = ArrayList<Prediction>()
                 val (metrics, results) =
@@ -177,18 +175,25 @@ class FaceDetectionOverlay(
                         frameBitmap,
                         flatSearch,
                     )
-                results.forEach { (name, boundingBox, spoofResult) ->
-                    val box = boundingBox.toRectF()
-                    var personName = name
-                    if (viewModel.getNumPeople().toInt() == 0) {
-                        personName = ""
+
+                results.forEach { (name, personId, boundingBox, spoofResult) ->
+                    val box = RectF(boundingBox) // no toRectF() needed
+                    var label = name
+                    if (viewModel.getNumPeople().toInt() == 0) label = ""
+
+                    // Only act on recognized + non-spoof faces
+                    if (personId != null && name != "Not recognized" && (spoofResult?.isSpoof != true)) {
+                        withContext(Dispatchers.Main) {
+                            viewModel.onRecognized(personId!!, name)
+                        }
                     }
-                    if (spoofResult != null && spoofResult.isSpoof) {
-                        personName = "$personName (Spoof: ${spoofResult.score})"
-                    }
+
                     boundingBoxTransform.mapRect(box)
-                    predictions.add(Prediction(box, personName))
+                    predictions.add(Prediction(box, label))
                 }
+
+
+
                 withContext(Dispatchers.Main) {
                     viewModel.faceDetectionMetricsState.value = metrics
                     this@FaceDetectionOverlay.predictions = predictions.toTypedArray()
@@ -221,14 +226,7 @@ class FaceDetectionOverlay(
             }
 
         override fun surfaceCreated(holder: SurfaceHolder) {}
-
-        override fun surfaceChanged(
-            holder: SurfaceHolder,
-            format: Int,
-            width: Int,
-            height: Int,
-        ) {}
-
+        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
         override fun surfaceDestroyed(holder: SurfaceHolder) {}
 
         override fun onDraw(canvas: Canvas) {

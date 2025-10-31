@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -46,6 +47,7 @@ import apnitor.facerecognition.app.viewmodel.FaceListScreenViewModel
 fun FaceListScreen(
     onNavigateBack: (() -> Unit),
     onAddFaceClick: (() -> Unit),
+    onOpenHistoryClick: (() -> Unit)
 ) {
     FaceNetAndroidTheme {
         Scaffold(
@@ -63,6 +65,14 @@ fun FaceListScreen(
                             )
                         }
                     },
+                    actions = {
+                        IconButton(onClick = onOpenHistoryClick) {
+                            Icon(
+                                imageVector = Icons.Default.History,
+                                contentDescription = "Attendance History",
+                            )
+                        }
+                    }
                 )
             },
             floatingActionButton = {

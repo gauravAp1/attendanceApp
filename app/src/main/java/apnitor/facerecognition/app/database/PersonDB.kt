@@ -27,4 +27,11 @@ class PersonDB {
             .build()
             .flow()
             .flowOn(kotlinx.coroutines.Dispatchers.IO)
+
+    fun findByName(name: String): PersonRecord? =
+        personBox
+            .query(PersonRecord_.personName.equal(name))
+            .build()
+            .findFirst()
+
 }

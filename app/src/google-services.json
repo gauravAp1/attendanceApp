@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "76412979195",
+    "project_id": "attendance-app-flutter-78489",
+    "storage_bucket": "attendance-app-flutter-78489.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:76412979195:android:50b117b232ef3f2e656d5e",
+        "android_client_info": {
+          "package_name": "apnitor.facerecognition.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4FQp1l2T5bue6jbib3AH4J_t-u3GIyhY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:76412979195:android:882a5e2d5c0d1b5d656d5e",
+        "android_client_info": {
+          "package_name": "com.example.attendance"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4FQp1l2T5bue6jbib3AH4J_t-u3GIyhY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:76412979195:android:80bfbbff045b2379656d5e",
+        "android_client_info": {
+          "package_name": "com.example.attendance_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4FQp1l2T5bue6jbib3AH4J_t-u3GIyhY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

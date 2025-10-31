@@ -22,6 +22,7 @@ class ImageVectorUseCase(
 ) {
     data class FaceRecognitionResult(
         val personName: String,
+        val personId: Long?,
         val boundingBox: Rect,
         val spoofResult: FaceSpoofDetector.FaceSpoofResult? = null,
     )
@@ -82,7 +83,7 @@ class ImageVectorUseCase(
                 measureTimedValue { imagesVectorDB.getNearestEmbeddingPersonName(embedding, flatSearch) }
             avgT3 += t3.toLong(DurationUnit.MILLISECONDS)
             if (recognitionResult == null) {
-                faceRecognitionResults.add(FaceRecognitionResult("Not recognized", boundingBox))
+                faceRecognitionResults.add(FaceRecognitionResult("Not recognized",null, boundingBox))
                 continue
             }
 
@@ -96,11 +97,16 @@ class ImageVectorUseCase(
             // else we conclude that the face does not match enough
             if (distance > 0.4) {
                 faceRecognitionResults.add(
-                    FaceRecognitionResult(recognitionResult.personName, boundingBox, spoofResult),
+                    FaceRecognitionResult(
+                        personName = recognitionResult.personName,
+                        personId   = recognitionResult.personID,   // pass ID from FaceImageRecord
+                        boundingBox = boundingBox,
+                        spoofResult = spoofResult
+                    ),
                 )
             } else {
                 faceRecognitionResults.add(
-                    FaceRecognitionResult("Not recognized", boundingBox, spoofResult),
+                    FaceRecognitionResult("Not recognized",null, boundingBox, spoofResult),
                 )
             }
         }

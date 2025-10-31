@@ -5,8 +5,11 @@ import apnitor.facerecognition.app.FaceDetection.FaceSpoofDetector
 import apnitor.facerecognition.app.FaceDetection.ImageVectorUseCase
 import apnitor.facerecognition.app.FaceDetection.MediapipeFaceDetector
 import apnitor.facerecognition.app.FaceDetection.PersonUseCase
+import apnitor.facerecognition.app.database.AttendanceDB
+import apnitor.facerecognition.app.database.AttendanceUseCase
 import apnitor.facerecognition.app.database.ImagesVectorDB
 import apnitor.facerecognition.app.database.PersonDB
+import com.google.firebase.database.FirebaseDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,6 +20,20 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class AppModule {
+
+    @Provides @Singleton
+    fun provideFirebaseDatabase(): FirebaseDatabase = FirebaseDatabase.getInstance().apply {
+        setPersistenceEnabled(false)
+    }
+
+    @Provides @Singleton
+    fun provideAttendanceDB(): AttendanceDB = AttendanceDB()
+
+    @Provides @Singleton fun provideAttendanceUseCase(
+        personDB:PersonDB,
+        attendanceDB: AttendanceDB,
+        time: FirebaseTimeProvider
+    ): AttendanceUseCase = AttendanceUseCase(personDB, attendanceDB, time)
 
     // --- Data layer ---
     @Provides

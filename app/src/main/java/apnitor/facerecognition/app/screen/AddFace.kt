@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -49,7 +50,7 @@ fun AddFaceScreen(
 
     // -------- UI State --------
     var personName by remember { mutableStateOf("") }
-    val steps = listOf("Look Right", "Look Left", "Look Up", "Look Down")
+    val steps = listOf("Look Right", "Look Left", "Look Slight Up", "Look Slight Down")
     var stepIndex by remember { mutableStateOf(0) }
     var started by remember { mutableStateOf(false) }
     var previewBitmapRaw by remember { mutableStateOf<Bitmap?>(null) }
@@ -149,7 +150,7 @@ fun AddFaceScreen(
                                 analyzePoseFrame(
                                     imageProxy = imageProxy,
                                     started = started,
-                                    paused = paused || captureInProgress || showPreview,
+                                    paused = paused || captureInProgress || showPreview || isSaving,
                                     headPoseEstimator = headPoseEstimator,
                                     expected = steps.getOrNull(stepIndex),
                                     yawWindow = yawWindow,
@@ -172,8 +173,8 @@ fun AddFaceScreen(
                                                 mainExecutor,
                                                 object : ImageCapture.OnImageCapturedCallback() {
                                                     override fun onCaptureSuccess(img: ImageProxy) {
-                                                        val raw = imageProxyToBitmap(img)   // RAW: rotation-corrected, NOT MIRRORED
-                                                        val display = raw.mirrored()        // Mirrored for user preview only
+                                                        val raw = imageProxyToBitmap(img)
+                                                        val display = raw.mirrored()
                                                         img.close()
 
                                                         previewBitmapRaw = raw
@@ -214,6 +215,7 @@ fun AddFaceScreen(
                     ) {
                         Text(
                             text = "We will capture 4 angles:\nRight • Left • Up • Down",
+                            color = Color.White,
                             textAlign = TextAlign.Center
                         )
                         Spacer(Modifier.height(12.dp))
@@ -222,7 +224,7 @@ fun AddFaceScreen(
                             onClick = { started = true }
                         ) { Text("Start") }
                     }
-                } else {
+                } else if (!isSaving) {
                     Box(
                         Modifier
                             .align(Alignment.TopCenter)
@@ -240,34 +242,41 @@ fun AddFaceScreen(
 
             if (showPreview && previewBitmapDisplay != null && previewBitmapRaw != null) {
                 ConfirmCaptureDialog(
-                    bitmap = previewBitmapDisplay!!,   // show mirrored
+                    bitmap = previewBitmapDisplay!!,
                     onApprove = {
-                        approvedBitmaps.add(previewBitmapRaw!!)  // save RAW for embeddings
+                        approvedBitmaps.add(previewBitmapRaw!!)
                         showPreview = false
-                        paused = false
+                        previewBitmapRaw = null
+                        previewBitmapDisplay = null
                         stableCount = 0
                         yawWindow.clear(); pitchWindow.clear(); rollWindow.clear()
+
                         if (stepIndex < steps.lastIndex) {
+                            // Move to next step
                             stepIndex += 1
+                            paused = false
                         } else {
+                            // Final step completed - save and exit
                             isSaving = true
+                            paused = true
                             uiScope.launch {
                                 val result = runCatching {
-                                    // This suspends on main, but the work runs on Dispatchers.Default inside the VM function.
                                     viewModel.saveApprovedBitmaps(personName, approvedBitmaps.toList())
                                 }
                                 isSaving = false
                                 result.onSuccess {
                                     onNavigateBack()
                                 }.onFailure { e ->
-
+                                    // Handle error - could show a Snackbar or dialog
+                                    paused = false
                                 }
                             }
-
                         }
                     },
                     onRetake = {
                         showPreview = false
+                        previewBitmapRaw = null
+                        previewBitmapDisplay = null
                         paused = false
                         stableCount = 0
                     }
@@ -280,13 +289,21 @@ fun AddFaceScreen(
         AlertDialog(
             onDismissRequest = { /* block */ },
             title = { Text("Saving") },
-            text = { CircularProgressIndicator() },
+            text = {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            },
             confirmButton = {},
             dismissButton = {}
         )
     }
 
 }
+
 private fun Bitmap.mirrored(): Bitmap {
     val m = Matrix().apply { preScale(-1f, 1f) }
     return Bitmap.createBitmap(this, 0, 0, width, height, m, true)
@@ -302,13 +319,6 @@ private data class Thresholds(
     val minFaceFraction: Float
 )
 
-/**
- * FIX: ML Kit returns angles from face perspective, not camera perspective.
- * We need to negate yaw: when user looks RIGHT, ML Kit returns NEGATIVE yaw.
- * - Smooth yaw/pitch/roll over a sliding window (size = smoothN).
- * - Enforce face size and roll constraints (reject tiny faces or tilted heads).
- * - Require `requiredStable` consecutive matched frames to trigger capture.
- */
 private fun analyzePoseFrame(
     imageProxy: ImageProxy,
     started: Boolean,
@@ -336,7 +346,6 @@ private fun analyzePoseFrame(
             onStableCountUpdate(0); return
         }
 
-        // FIX: Negate yaw and pitch because ML Kit returns face perspective, not camera perspective
         val correctedYaw = -pose.yaw
         val correctedPitch = -pose.pitch
 
@@ -348,10 +357,10 @@ private fun analyzePoseFrame(
         val pitchAvg = pitchWindow.average().toFloat()
 
         val match = when (expected) {
-            "Look Right" -> yawAvg > thresholds.yawEnter      // now correctly positive
-            "Look Left"  -> yawAvg < -thresholds.yawEnter     // now correctly negative
-            "Look Up"    -> pitchAvg < thresholds.pitchUpEnter    // now correctly negative
-            "Look Down"  -> pitchAvg > thresholds.pitchDownEnter  // now correctly positive
+            "Look Right" -> yawAvg > thresholds.yawEnter
+            "Look Left"  -> yawAvg < -thresholds.yawEnter
+            "Look Slight Up"    -> pitchAvg < thresholds.pitchUpEnter
+            "Look Slight Down"  -> pitchAvg > thresholds.pitchDownEnter
             else -> false
         }
 
@@ -420,4 +429,3 @@ private fun imageProxyToBitmap(image: ImageProxy): Bitmap {
     }
     return bmp
 }
-

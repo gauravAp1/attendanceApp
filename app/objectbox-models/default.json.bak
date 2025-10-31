@@ -64,63 +64,10 @@
         }
       ],
       "relations": []
-    },
-    {
-      "id": "3:4823000860852707864",
-      "lastPropertyId": "8:4379235495699078367",
-      "name": "AttendanceRecord",
-      "properties": [
-        {
-          "id": "1:5777444674162671535",
-          "name": "id",
-          "type": 6,
-          "flags": 1
-        },
-        {
-          "id": "2:2086446083018649769",
-          "name": "personID",
-          "indexId": "3:8873215922120692004",
-          "type": 6,
-          "flags": 8
-        },
-        {
-          "id": "3:427838184873540264",
-          "name": "personName",
-          "type": 9
-        },
-        {
-          "id": "4:4999189996035080349",
-          "name": "dayKeyUtc",
-          "indexId": "4:1552812737646357523",
-          "type": 9,
-          "flags": 2048
-        },
-        {
-          "id": "5:2042972628832542716",
-          "name": "checkInMillisUtc",
-          "type": 6
-        },
-        {
-          "id": "6:1319866057555091814",
-          "name": "checkOutMillisUtc",
-          "type": 6
-        },
-        {
-          "id": "7:4809441676799092507",
-          "name": "createdAtMillisUtc",
-          "type": 6
-        },
-        {
-          "id": "8:4379235495699078367",
-          "name": "updatedAtMillisUtc",
-          "type": 6
-        }
-      ],
-      "relations": []
     }
   ],
-  "lastEntityId": "3:4823000860852707864",
-  "lastIndexId": "4:1552812737646357523",
+  "lastEntityId": "2:8410151204825114523",
+  "lastIndexId": "2:4659672834596369984",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

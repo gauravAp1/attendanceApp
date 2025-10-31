@@ -17,8 +17,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import apnitor.facerecognition.app.screen.AddFaceScreen
+import apnitor.facerecognition.app.screen.AttendanceHistoryScreen
 import apnitor.facerecognition.app.screen.DetectScreen
 import apnitor.facerecognition.app.screen.FaceListScreen
+import apnitor.facerecognition.app.screen.HomeScreen
 import apnitor.facerecognition.app.ui.theme.PureattendanceSystemTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -31,16 +33,28 @@ class MainActivity : ComponentActivity() {
             val navHostController = rememberNavController()
             NavHost(
                 navController = navHostController,
-                startDestination = "detect",
+                startDestination = "home",
                 enterTransition = { fadeIn() },
                 exitTransition = { fadeOut() },
             ) {
+
+                composable("home") {
+                    HomeScreen(
+                        onAddFace = { navHostController.navigate("add-face") },
+                        onHistory = { navHostController.navigate("history") },
+                        onMarkAttendance = { navHostController.navigate("detect") },
+                        onFaceList = { navHostController.navigate("face-list") }
+                    )
+                }
                 composable("add-face") { AddFaceScreen { navHostController.navigateUp() } }
-                composable("detect") { DetectScreen { navHostController.navigate("face-list") } }
+                composable("history") { AttendanceHistoryScreen { navHostController.navigateUp() } }
+
+                composable("detect") { DetectScreen(onOpenFaceListClick = {navHostController.navigate("face-list")},onNavigateToHome = { navHostController.navigate("home") }) }
                 composable("face-list") {
                     FaceListScreen(
                         onNavigateBack = { navHostController.navigateUp() },
                         onAddFaceClick = { navHostController.navigate("add-face") },
+                        onOpenHistoryClick = { navHostController.navigate("history") }
                     )
                 }
             }
